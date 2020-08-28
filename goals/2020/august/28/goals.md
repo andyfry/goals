@@ -1,3 +1,3 @@
 [x] Implement Tag System
 [x] Move Video Game posts
-[ ] Meditate
+[x] Meditate: Start Here, One
