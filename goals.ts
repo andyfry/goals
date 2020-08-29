@@ -7,21 +7,20 @@ import {
 	walkSync
 } from "https://deno.land/std/fs/mod.ts";
 
+const basePath = '/Users/andyfry/Projects/daily/goals';
 const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 
 async function main() {
 	const args = parse(Deno.args);
 
-	if (args.stats) {
-		displayStats();
+	if (args._.includes('stats')) {
+		displayStats(args);
 	} else {
 		displayGoals(args);
 	}
 }
 
 function buildPath(date: Date) {
-
-	const basePath = '/Users/andyfry/Projects/daily/goals';
 	const fileName = 'goals.json';
 
 	const year = date.getFullYear();
@@ -73,15 +72,13 @@ function displayGoal(goal: goal) {
 	console.log(`  [${goal.done ? 'X' : ' '}] ${goal.title}`);
 }
 
-function displayStats() {
-	const basePath = '/Users/andyfry/Projects/daily/goals';
+function displayStats(args: any) {
 	console.log("Goals Statistics");
+
 	let numberOfDays = 0;
 	let numberOfGoals = 0;
 	let numberOfGoalsCompleted = 0;
 	let numberOfSuccessfulDays = 0;
-
-
 
 	for (const entry of walkSync(basePath)) {
 		if (entry.name === 'goals.json') {
@@ -89,25 +86,22 @@ function displayStats() {
 			numberOfDays++;
 			const goals = readJsonSync(entry.path) as goal[];
 			numberOfGoals += goals.length;
-			goals.forEach((goal)=>{
-				if(goal.done){
+			goals.forEach((goal) => {
+				if (goal.done) {
 					numberOfGoalsCompleted++;
 				} else {
 					success = false;
 				}
-
 			});
-			if(success){
+			if (success) {
 				numberOfSuccessfulDays++;
 			}
-
 		}
 	}
 
 	console.log('Number of Days: ', numberOfDays);
-	console.log( numberOfGoalsCompleted, '/', numberOfGoals);
+	console.log(numberOfGoalsCompleted, '/', numberOfGoals);
 	console.log('Successful Days: ', numberOfSuccessfulDays);
-	
 }
 
 function formatDate(date: Date): string {
