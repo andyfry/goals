@@ -5,11 +5,11 @@ A project to help me set and track daily goals
 deno install --allow-read --unstable goals.ts 
 
 # Usage
-goals                   ( Show Goals for Today ) 
-goals -today            ( Show Goals for Today )
-goals -yesterday        ( Show Goals for Yesterday )
-goals -tomorrow         ( Show Goals for Tomorrow )
-goals -date 5/4/1979    ( Show Goals for Given Date )
+goals                    ( Show Goals for Today ) 
+goals --today            ( Show Goals for Today )
+goals --yesterday        ( Show Goals for Yesterday )
+goals --tomorrow         ( Show Goals for Tomorrow )
+goals --date 5/4/1979    ( Show Goals for Given Date ) *Not Supported Yet*
 
 
 # TODO

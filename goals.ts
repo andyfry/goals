@@ -1,14 +1,24 @@
-import { exists, readJson, readJsonSync } from "https://deno.land/std/fs/mod.ts";
+import { parse } from "https://deno.land/std/flags/mod.ts";
+import { exists, existsSync, readJson, readJsonSync } from "https://deno.land/std/fs/mod.ts";
 
 const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 
 async function main() {
-	const date = new Date();
-	const path = buildPath(date);
+	const args = parse(Deno.args);
 
-	let goals = readJsonSync(path) as goal[];
+	const today = new Date();
+	const yesterday = new Date(Date.now() - 86400000);
+	const tomorrow = new Date(Date.now() + 86400000);
 
-	displayGoals(goals, date);
+	if (args.yesterday) {
+		displayGoals(yesterday);
+	}
+	if (args.today || (!args.yesterday && !args.tomorrow)) {
+		displayGoals(today);
+	}
+	if (args.tomorrow) {
+		displayGoals(tomorrow);
+	}
 }
 
 function buildPath(date: Date) {
@@ -23,24 +33,45 @@ function buildPath(date: Date) {
 	return `${basePath}/${year}/${month}/${day}/${fileName}`;
 }
 
-function displayGoals(goals: goal[], date: Date) {
-	const numberOfGoals= goals.length;
-	let goalsDone = 0;
+function displayGoals(date: Date) {
+	const path = buildPath(date);
 
-	console.log("Goals for Today");
-	goals.forEach((goal) => 
-	{ 
-		displayGoal(goal); 
-		if(goal.done){
-			goalsDone++;
-		}
-	});
-	console.log(`${goalsDone}/${numberOfGoals} Complete`);
+	if (!existsSync(path)) {
+		console.log("No Goals Set For", formatDate(date))
+	}
+	else {
+		const goals = readJsonSync(path) as goal[];
+		const numberOfGoals = goals.length;
+		let goalsDone = 0;
+		console.log("Goals for", formatDate(date));
+
+		goals.forEach((goal) => {
+			displayGoal(goal);
+			if (goal.done) {
+				goalsDone++;
+			}
+		});
+		console.log(`${goalsDone}/${numberOfGoals} Complete`);
+	}
 }
 
 function displayGoal(goal: goal) {
 	console.log(`  [${goal.done ? 'X' : ' '}] ${goal.title}`);
 }
+
+function formatDate(date: Date): string {
+	const today = new Date().toDateString();
+	const yesterday = new Date(Date.now() - 86400000).toDateString();
+	const tomorrow = new Date(Date.now() + 86400000).toDateString();
+	const dateString = date.toDateString();
+
+	if (yesterday === dateString) { return 'Yesterday' }
+	if (today === dateString) { return 'Today' }
+	if (tomorrow === dateString) { return 'Tomorrow' }
+
+	return date.toDateString();
+}
+
 
 main();
 
