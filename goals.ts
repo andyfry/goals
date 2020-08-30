@@ -69,7 +69,7 @@ function displayDailyGoals(date: Date) {
 }
 
 function displayGoal(goal: goal) {
-	console.log(`  [${goal.done ? 'X' : ' '}] ${goal.title}`);
+	console.log(`  ${goal.done ? '✅' : '❌'} ${goal.title}`);
 }
 
 function displayStats(args: any) {

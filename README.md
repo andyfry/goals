@@ -14,6 +14,7 @@ goals --date 5/4/1979           ( Show Goals for Given Date ) *Not Supported Yet
 goals add "Medition"            ( Add a new Goal to Tomorrow) *Not Supported Yet*
 goals add "Medition" --today    ( Add a new Goal to Today) *Not Supported Yet*
 goals stats                     ( Show Stats )
+goals watch                     ( Listen for changes to the goals file )
 ```
 
 # TODO
