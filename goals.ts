@@ -4,6 +4,7 @@ import {
 	existsSync,
 	readJson,
 	readJsonSync,
+	writeJsonSync,
 	walkSync
 } from "https://deno.land/std/fs/mod.ts";
 
@@ -13,9 +14,17 @@ const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'jul
 async function main() {
 	const args = parse(Deno.args);
 
+	if (args._.includes('help') || args.h || args.help) {
+		displayHelp(true);
+		Deno.exit();
+	}
 	if (args._.includes('stats')) {
 		displayStats(args);
-	} else {
+	} else if (args._.includes('done')) {
+		markDone(args);
+	}
+
+	else {
 		displayGoals(args);
 	}
 }
@@ -68,8 +77,26 @@ function displayDailyGoals(date: Date) {
 	}
 }
 
+function displayError(arg: any, message?: string) {
+	console.log(message);
+	console.log('RED Unknown Command RED');
+	displayHelp(false);
+	console.log('Return Error Code');
+	Deno.exit(1);
+};
+
 function displayGoal(goal: goal) {
 	console.log(`  ${goal.done ? '✅' : '❌'} ${goal.title}`);
+}
+
+function displayHelp(long: boolean) {
+	console.log('usage: goals [<command>] [args] [--yesterday] [--today] [--tomorrow]');
+	if (long) {
+		console.log('goals                         View Todays Goals');
+		console.log('goals add "New Goal"          Add a new Goal to Today');
+		console.log('goals done 1                  Marks the first Goal for Today as Done');
+		console.log('goals help                    Displays Help');
+	}
 }
 
 function displayStats(args: any) {
@@ -117,6 +144,29 @@ function formatDate(date: Date): string {
 	return date.toDateString();
 }
 
+function markDone(arg: any) {
+	if (arg._.length < 1) {
+		displayError(arg, 'No number given');
+	}
+	if (arg._.length > 2) {
+		displayError(arg, 'Unknown Command');
+	}
+	
+	const goalNumber = arg._[1];
+	const today = new Date();
+	const path = buildPath(today);
+	let goals = readJsonSync(path) as goal[];
+	const goal = goals[goalNumber - 1];
+	
+	if (goal === undefined) {
+		displayError(arg, "Goal not found");
+	}
+	
+	goal.done = !arg.undo;
+	writeJsonSync(path, goals);
+
+	displayGoals(arg);
+}
 
 main();
 
