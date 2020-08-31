@@ -1,4 +1,7 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
+import { helpCommand } from "./helpCommand.ts";
+
+
 import {
 	exists,
 	existsSync,
@@ -9,8 +12,11 @@ import {
 	ensureFileSync
 } from "https://deno.land/std/fs/mod.ts";
 
+import { goal } from "./goal.ts";
+import { monthNames } from "./months.ts"
+
 const basePath = '/Users/andyfry/Projects/daily/goals';
-const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
 const today = new Date();
 const yesterday = new Date(Date.now() - 86400000);
 const tomorrow = new Date(Date.now() + 86400000);
@@ -19,7 +25,7 @@ async function main() {
 	const args = parse(Deno.args);
 
 	if (args._.includes('help') || args.h || args.help) {
-		displayHelp(true);
+		helpCommand(args);
 		Deno.exit();
 	}
 	if (args._.includes('stats')) {
@@ -43,8 +49,8 @@ async function main() {
 // ****************************************************************************
 function addGoal(arg: any) {
 	const goal = arg._[1];
-	const day =  chooseDate(arg, tomorrow);
-	
+	const day = chooseDate(arg, tomorrow);
+
 	const path = buildPath(day);
 	let goals: goal[];
 	if (!existsSync(path)) {
@@ -53,9 +59,9 @@ function addGoal(arg: any) {
 	else {
 		goals = readJsonSync(path) as goal[];
 	}
-	
+
 	goals.push({ title: goal, done: false });
-	
+
 	ensureFileSync(path);
 	writeJsonSync(path, goals);
 }
@@ -72,15 +78,6 @@ function displayGoals(args: any) {
 	}
 }
 
-function displayHelp(long: boolean) {
-	console.log('usage: goals [<command>] [args] [--yesterday] [--today] [--tomorrow]');
-	if (long) {
-		console.log('goals                         View Todays Goals');
-		console.log('goals add "New Goal"          Add a new Goal to Today');
-		console.log('goals done 1                  Marks the first Goal for Today as Done');
-		console.log('goals help                    Displays Help');
-	}
-}
 
 function displayStats(args: any) {
 	console.log("Goals Statistics");
@@ -122,10 +119,10 @@ function markDone(arg: any) {
 		displayError(arg, 'Unknown Command');
 	}
 	const day = chooseDate(arg, today);
-	
+
 	const path = buildPath(day);
 	let goals = readJsonSync(path) as goal[];
-	
+
 	const goalNumber = arg._[1];
 	const goal = goals[goalNumber - 1];
 
@@ -153,14 +150,14 @@ function buildPath(date: Date) {
 	return `${basePath}/${year}/${month}/${day}/${fileName}`;
 }
 
-function chooseDate(arg: any, defaultDay:Date){
-	if(arg.yesterday){
+function chooseDate(arg: any, defaultDay: Date) {
+	if (arg.yesterday) {
 		return yesterday;
 	}
-	if(arg.today){
+	if (arg.today) {
 		return today;
 	}
-	if(arg.tomorrow){
+	if (arg.tomorrow) {
 		return tomorrow;
 	}
 	return defaultDay;
@@ -191,7 +188,7 @@ function displayDailyGoals(date: Date) {
 function displayError(arg: any, message?: string) {
 	console.log(message);
 	console.log('RED Unknown Command RED');
-	displayHelp(false);
+	helpCommand(arg);
 	console.log('Return Error Code');
 	Deno.exit(1);
 };
@@ -214,7 +211,4 @@ function formatDate(date: Date): string {
 
 main();
 
-interface goal {
-	title: string,
-	done: boolean
-}
+
