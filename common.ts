@@ -6,7 +6,7 @@ const yesterday = new Date(Date.now() - 86400000);
 const tomorrow = new Date(Date.now() + 86400000);
 
 // TODO: Get from configuration
-const basePath = '/Users/andyfry/Projects/daily/goals';
+const basePath = '/Users/andyfry/Projects/goals';
 
 export function chooseDate(args: any, defaultDay: Date) {
 	if (args.yesterday) {

@@ -2,7 +2,7 @@ import { goal } from "./goal.ts";
 import { readJsonSync, walkSync } from "https://deno.land/std/fs/mod.ts";
 
 // TODO: Get This from configuration
-const basePath = '/Users/andyfry/Projects/daily/goals';
+const basePath = '/Users/andyfry/Projects/goals';
 
 export function statsCommand(args: any) {
     console.log("Goals Statistics");
