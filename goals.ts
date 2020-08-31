@@ -5,11 +5,15 @@ import {
 	readJson,
 	readJsonSync,
 	writeJsonSync,
-	walkSync
+	walkSync,
+	ensureFileSync
 } from "https://deno.land/std/fs/mod.ts";
 
 const basePath = '/Users/andyfry/Projects/daily/goals';
-const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const today = new Date();
+const yesterday = new Date(Date.now() - 86400000);
+const tomorrow = new Date(Date.now() + 86400000);
 
 async function main() {
 	const args = parse(Deno.args);
@@ -20,30 +24,43 @@ async function main() {
 	}
 	if (args._.includes('stats')) {
 		displayStats(args);
-	} else if (args._.includes('done')) {
+		Deno.exit();
+	}
+	if (args._.includes('add')) {
+		addGoal(args);
+		Deno.exit();
+	}
+	if (args._.includes('done')) {
 		markDone(args);
+		Deno.exit();
 	}
 
-	else {
-		displayGoals(args);
-	}
+	displayGoals(args);
 }
 
-function buildPath(date: Date) {
-	const fileName = 'goals.json';
-
-	const year = date.getFullYear();
-	const month = monthNames[date.getMonth()];
-	const day = date.getDate();
-
-	return `${basePath}/${year}/${month}/${day}/${fileName}`;
+// ****************************************************************************
+// Commands
+// ****************************************************************************
+function addGoal(arg: any) {
+	const goal = arg._[1];
+	const day =  chooseDate(arg, tomorrow);
+	
+	const path = buildPath(day);
+	let goals: goal[];
+	if (!existsSync(path)) {
+		goals = [];
+	}
+	else {
+		goals = readJsonSync(path) as goal[];
+	}
+	
+	goals.push({ title: goal, done: false });
+	
+	ensureFileSync(path);
+	writeJsonSync(path, goals);
 }
 
 function displayGoals(args: any) {
-	const today = new Date();
-	const yesterday = new Date(Date.now() - 86400000);
-	const tomorrow = new Date(Date.now() + 86400000);
-
 	if (args.yesterday) {
 		displayDailyGoals(yesterday);
 	}
@@ -53,40 +70,6 @@ function displayGoals(args: any) {
 	if (args.tomorrow) {
 		displayDailyGoals(tomorrow);
 	}
-}
-
-function displayDailyGoals(date: Date) {
-	const path = buildPath(date);
-
-	if (!existsSync(path)) {
-		console.log("No Goals Set For", formatDate(date))
-	}
-	else {
-		const goals = readJsonSync(path) as goal[];
-		const numberOfGoals = goals.length;
-		let goalsDone = 0;
-		console.log("Goals for", formatDate(date));
-
-		goals.forEach((goal) => {
-			displayGoal(goal);
-			if (goal.done) {
-				goalsDone++;
-			}
-		});
-		console.log(`${goalsDone}/${numberOfGoals} Complete`);
-	}
-}
-
-function displayError(arg: any, message?: string) {
-	console.log(message);
-	console.log('RED Unknown Command RED');
-	displayHelp(false);
-	console.log('Return Error Code');
-	Deno.exit(1);
-};
-
-function displayGoal(goal: goal) {
-	console.log(`  ${goal.done ? '✅' : '❌'} ${goal.title}`);
 }
 
 function displayHelp(long: boolean) {
@@ -131,19 +114,6 @@ function displayStats(args: any) {
 	console.log('Successful Days: ', numberOfSuccessfulDays);
 }
 
-function formatDate(date: Date): string {
-	const today = new Date().toDateString();
-	const yesterday = new Date(Date.now() - 86400000).toDateString();
-	const tomorrow = new Date(Date.now() + 86400000).toDateString();
-	const dateString = date.toDateString();
-
-	if (yesterday === dateString) { return 'Yesterday' }
-	if (today === dateString) { return 'Today' }
-	if (tomorrow === dateString) { return 'Tomorrow' }
-
-	return date.toDateString();
-}
-
 function markDone(arg: any) {
 	if (arg._.length < 1) {
 		displayError(arg, 'No number given');
@@ -151,22 +121,96 @@ function markDone(arg: any) {
 	if (arg._.length > 2) {
 		displayError(arg, 'Unknown Command');
 	}
+	const day = chooseDate(arg, today);
+	
+	const path = buildPath(day);
+	let goals = readJsonSync(path) as goal[];
 	
 	const goalNumber = arg._[1];
-	const today = new Date();
-	const path = buildPath(today);
-	let goals = readJsonSync(path) as goal[];
 	const goal = goals[goalNumber - 1];
-	
+
 	if (goal === undefined) {
 		displayError(arg, "Goal not found");
 	}
-	
+
 	goal.done = !arg.undo;
 	writeJsonSync(path, goals);
 
 	displayGoals(arg);
 }
+
+// ****************************************************************************
+// Helper Functions
+// ****************************************************************************
+
+function buildPath(date: Date) {
+	const fileName = 'goals.json';
+
+	const year = date.getFullYear();
+	const month = monthNames[date.getMonth()];
+	const day = date.getDate();
+
+	return `${basePath}/${year}/${month}/${day}/${fileName}`;
+}
+
+function chooseDate(arg: any, defaultDay:Date){
+	if(arg.yesterday){
+		return yesterday;
+	}
+	if(arg.today){
+		return today;
+	}
+	if(arg.tomorrow){
+		return tomorrow;
+	}
+	return defaultDay;
+}
+
+function displayDailyGoals(date: Date) {
+	const path = buildPath(date);
+
+	if (!existsSync(path)) {
+		console.log("No Goals Set For", formatDate(date))
+	}
+	else {
+		const goals = readJsonSync(path) as goal[];
+		const numberOfGoals = goals.length;
+		let goalsDone = 0;
+		console.log("Goals for", formatDate(date));
+
+		goals.forEach((goal) => {
+			displayGoal(goal);
+			if (goal.done) {
+				goalsDone++;
+			}
+		});
+		console.log(`${goalsDone}/${numberOfGoals} Complete`);
+	}
+}
+
+function displayError(arg: any, message?: string) {
+	console.log(message);
+	console.log('RED Unknown Command RED');
+	displayHelp(false);
+	console.log('Return Error Code');
+	Deno.exit(1);
+};
+
+function displayGoal(goal: goal) {
+	console.log(`  ${goal.done ? '✅' : '❌'} ${goal.title}`);
+}
+
+function formatDate(date: Date): string {
+	const dateString = date.toDateString();
+
+	if (yesterday.toDateString() === dateString) { return 'Yesterday' }
+	if (today.toDateString() === dateString) { return 'Today' }
+	if (tomorrow.toDateString() === dateString) { return 'Tomorrow' }
+
+	return date.toDateString();
+}
+
+
 
 main();
 
