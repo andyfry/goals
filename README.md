@@ -24,5 +24,4 @@ goals watch                     ( Listen for changes to the goals file ) *Not Su
 - Switch to Async
 - Create a way to keep it visually up to date
 - Polish Help and Error Message 
-- Structure Files Better
 - Separate Data from the app
