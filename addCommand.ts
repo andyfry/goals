@@ -2,6 +2,8 @@ import { existsSync, ensureFileSync, readJsonSync, writeJsonSync } from "https:/
 
 import { goal } from "./goal.ts";
 import { chooseDate, buildPath } from "./common.ts";
+import { displayDailyGoals } from "./displayCommand.ts";
+
 
 const tomorrow = new Date(Date.now() + 86400000);
 
@@ -22,4 +24,5 @@ export function addCommand(args: any) {
 
     ensureFileSync(path);
     writeJsonSync(path, goals);
+    displayDailyGoals(day);
 }

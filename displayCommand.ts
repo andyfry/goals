@@ -20,7 +20,7 @@ export function displayCommand(args: any) {
     }
 }
 
-function displayDailyGoals(date: Date) {
+export function displayDailyGoals(date: Date) {
     const path = buildPath(date);
 
     if (!existsSync(path)) {
