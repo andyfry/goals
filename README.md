@@ -17,11 +17,10 @@ goals done 1                    ( Mark the first goal done for Today )
 goals done 3 --yesterday        ( Mark the third goal done for Yesterday )
 goals done 1 --undo             ( Unmark the first goal done for Today )
 goals stats                     ( Show Stats )
-goals watch                     ( Listen for changes to the goals file ) *Not Supported Yet*
+goals watch                     ( Listen for changes to the goals file )
 ```
 
 # TODO
 - Switch to Async
-- Create a way to keep it visually up to date
 - Polish Help and Error Message 
-- Separate Data from the app
+- Have Watch change the file when the date changes

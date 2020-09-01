@@ -5,6 +5,7 @@ import { statsCommand } from "./statsCommand.ts";
 import { addCommand } from "./addCommand.ts";
 import { doneCommand } from "./doneCommand.ts";
 import { displayCommand } from "./displayCommand.ts";
+import { watchCommand } from "./watchCommand.ts";
 
 async function main() {
 	const args = parse(Deno.args);
@@ -25,7 +26,10 @@ async function main() {
 		doneCommand(args);
 		Deno.exit();
 	}
-
+	if (args._.includes('watch')) {
+		await watchCommand(args);
+	}
+		
 	displayCommand(args);
 }
 
