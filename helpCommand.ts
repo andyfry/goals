@@ -1,4 +1,6 @@
-export function helpCommand(args: any) {
+import { Args } from "https://deno.land/std/flags/mod.ts";
+
+export function helpCommand(args: Args) {
 	console.log('usage: goals [<command>] [args] [--yesterday] [--today] [--tomorrow]');
 
 	console.log('  goals                         View Todays Goals');

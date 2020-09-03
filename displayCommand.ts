@@ -1,5 +1,6 @@
 
 import { existsSync, readJsonSync } from "https://deno.land/std/fs/mod.ts";
+import { Args } from "https://deno.land/std/flags/mod.ts";
 
 import { goal} from "./goal.ts";
 import { buildPath} from "./common.ts";
@@ -8,7 +9,7 @@ const today = new Date();
 const yesterday = new Date(Date.now() - 86400000);
 const tomorrow = new Date(Date.now() + 86400000);
 
-export function displayCommand(args: any) {
+export function displayCommand(args: Args) {
     if (args.yesterday) {
         displayDailyGoals(yesterday);
     }

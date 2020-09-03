@@ -1,4 +1,6 @@
 
+import { Args } from "https://deno.land/std/flags/mod.ts";
+
 import { months } from "./months.ts"
 
 const today = new Date();
@@ -8,7 +10,7 @@ const tomorrow = new Date(Date.now() + 86400000);
 // TODO: Get from configuration
 const basePath = '/Users/andyfry/Projects/goals';
 
-export function chooseDate(args: any, defaultDay: Date) {
+export function chooseDate(args: Args, defaultDay: Date) {
 	if (args.yesterday) {
 		return yesterday;
 	}

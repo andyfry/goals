@@ -1,4 +1,5 @@
 import { readJsonSync, writeJsonSync } from "https://deno.land/std/fs/mod.ts";
+import { Args } from "https://deno.land/std/flags/mod.ts";
 import { red, bold } from "https://deno.land/std/fmt/colors.ts";
 
 import { goal } from "./goal.ts";
@@ -8,7 +9,7 @@ import { helpCommand } from "./helpCommand.ts"
 
 const today = new Date();
 
-export function doneCommand(args: any) {
+export function doneCommand(args: Args) {
     if (args._.length < 1) {
         displayError(args, 'No number given');
     }
@@ -20,7 +21,7 @@ export function doneCommand(args: any) {
     const path = buildPath(day);
     let goals = readJsonSync(path) as goal[];
 
-    const goalNumber = args._[1];
+    const goalNumber = +args._[1];
     const goal = goals[goalNumber - 1];
 
     if (goal === undefined) {
@@ -33,8 +34,8 @@ export function doneCommand(args: any) {
     displayCommand(args);
 }
 
-function displayError(args: any, message: string) {
+function displayError(args: Args, message: string) {
     console.log(red(bold(message)));
     helpCommand(args);
     Deno.exit(1);
-};
+}

@@ -1,10 +1,12 @@
+import { Args } from "https://deno.land/std/flags/mod.ts";
+
 import { goal } from "./goal.ts";
 import { readJsonSync, walkSync } from "https://deno.land/std/fs/mod.ts";
 
 // TODO: Get This from configuration
 const basePath = '/Users/andyfry/Projects/goals';
 
-export function statsCommand(args: any) {
+export function statsCommand(args: Args) {
     console.log("Goals Statistics");
 
     let numberOfDays = 0;
