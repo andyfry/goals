@@ -1,4 +1,4 @@
 interface goal {
-	title: string,
-	done: boolean
+  title: string;
+  done: boolean;
 }
