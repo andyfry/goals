@@ -1,4 +1,9 @@
-import { existsSync, readJsonSync } from "https://deno.land/std/fs/mod.ts";
+import {
+  ensureFileSync,
+  existsSync,
+  readJsonSync,
+  writeJsonSync,
+} from "https://deno.land/std/fs/mod.ts";
 import { Args } from "https://deno.land/std/flags/mod.ts";
 
 import { goal } from "./goal.ts";
@@ -24,6 +29,8 @@ export function displayDailyGoals(date: Date) {
   const path = buildPath(date);
 
   if (!existsSync(path)) {
+    ensureFileSync(path);
+    writeJsonSync(path, []);
     console.log("No Goals Set For", formatDate(date));
   } else {
     const goals = readJsonSync(path) as goal[];
